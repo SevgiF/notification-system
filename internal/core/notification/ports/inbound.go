@@ -9,4 +9,5 @@ type InboundPort interface {
 	CancelNotification(id int) error
 	NotificationList(status *int, channel *string, from *string, to *string, limitQuery *int, pageQuery *int) ([]dto.NotificationResponse, dto.Pagination, dto.Filter, error)
 	StatusList() ([]dto.Status, error)
+	GetMetrics() (map[string]interface{}, error)
 }

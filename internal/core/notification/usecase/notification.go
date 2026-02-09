@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"log"
+
 	"github.com/SevgiF/notification-system/internal/adapter/http/fiber/dto"
 	"github.com/SevgiF/notification-system/internal/core/notification/domain"
 	"github.com/SevgiF/notification-system/internal/core/notification/ports"
@@ -14,6 +16,20 @@ func NewNotificationService(repo ports.OutboundPort) *NotificationService {
 
 type NotificationService struct {
 	repo ports.OutboundPort
+}
+
+func (s *NotificationService) GetMetrics() (map[string]interface{}, error) {
+	metrics, err := s.repo.GetMetrics()
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert checks:
+	result := make(map[string]interface{})
+	for k, v := range metrics {
+		result[k] = v
+	}
+	return result, nil
 }
 
 func (s *NotificationService) StatusList() ([]dto.Status, error) {
@@ -30,7 +46,7 @@ func (s *NotificationService) NotificationList(status *int, channel *string, fro
 	limit := domain.DEFAULT_LIMIT
 	page := 1
 
-	if pageQuery != nil && *pageQuery <= 0 {
+	if pageQuery != nil && *pageQuery > 0 {
 		page = *pageQuery
 	}
 
@@ -42,6 +58,7 @@ func (s *NotificationService) NotificationList(status *int, channel *string, fro
 
 	items, totalCount, totalPage, err := s.repo.GetAllNotification(status, channel, from, to, limit, offset)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, dto.Pagination{}, dto.Filter{}, err
 	}
 
@@ -80,14 +97,9 @@ func (s *NotificationService) NotificationDetail(id int) (dto.NotificationRespon
 func (s *NotificationService) BulkAddNotification(items []dto.NotificationRequest) (err error) {
 	notifications := NotificationListFromRequest(items)
 
-	tx, err := s.repo.WithTransaction()
-	if err != nil {
-		return
-	}
-
 	for _, notification := range notifications {
 		notification.Status = domain.CREATED
-		err = s.repo.CreateNotification(tx, notification)
+		err = s.repo.CreateNotification(notification)
 		if err != nil {
 			return
 		}
@@ -98,11 +110,5 @@ func (s *NotificationService) BulkAddNotification(items []dto.NotificationReques
 func (s *NotificationService) AddNotification(item dto.NotificationRequest) (err error) {
 	notification := NotificationFromRequest(item)
 	notification.Status = domain.CREATED
-
-	tx, err := s.repo.WithTransaction()
-	if err != nil {
-		return
-	}
-
-	return s.repo.CreateNotification(tx, notification)
+	return s.repo.CreateNotification(notification)
 }

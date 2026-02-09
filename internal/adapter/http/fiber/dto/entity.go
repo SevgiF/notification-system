@@ -8,12 +8,13 @@ type NotificationRequest struct {
 }
 
 type NotificationResponse struct {
-	ID        int    `json:"id"`
-	Recipient string `json:"recipient"`
-	Channel   string `json:"channel"`
-	Content   string `json:"content"`
-	Priority  string `json:"priority"`
-	Status    int    `json:"status"`
+	ID         int    `json:"id"`
+	Recipient  string `json:"recipient"`
+	Channel    string `json:"channel"`
+	Content    string `json:"content"`
+	Priority   string `json:"priority"`
+	Status     int    `json:"status"`
+	StatusName string `json:"statusName"`
 }
 
 type Status struct {
@@ -22,10 +23,10 @@ type Status struct {
 }
 
 type Response struct {
-	Message    string     `json:"message"`
-	Pagination Pagination `json:"pagination,omitempty"`
-	Filter     Filter     `json:"filter,omitempty"`
-	Data       any        `json:"data,omitempty"`
+	Message    string      `json:"message"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Filter     *Filter     `json:"filter,omitempty"`
+	Data       any         `json:"data,omitempty"`
 }
 
 type Pagination struct {

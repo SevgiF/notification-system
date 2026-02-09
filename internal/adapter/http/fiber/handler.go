@@ -1,10 +1,13 @@
 package fiber
 
 import (
+	"log"
+	"strconv"
+	"time"
+
 	"github.com/SevgiF/notification-system/internal/adapter/http/fiber/dto"
 	"github.com/SevgiF/notification-system/internal/core/notification/ports"
 	"github.com/gofiber/fiber/v3"
-	"strconv"
 )
 
 func NewNotificationHandler(s ports.InboundPort) *NotificationHandler {
@@ -19,12 +22,12 @@ func (h *NotificationHandler) AddNotification(c fiber.Ctx) error {
 	var n dto.NotificationRequest
 
 	if err := c.Bind().Body(&n); err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	err := h.s.AddNotification(n)
 	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	return c.SendStatus(fiber.StatusCreated)
@@ -79,6 +82,8 @@ func (h *NotificationHandler) CancelNotification(c fiber.Ctx) error {
 }
 
 func (h *NotificationHandler) NotificationList(c fiber.Ctx) error {
+
+	log.Println("Getting notification list")
 	status, _ := strconv.Atoi(c.Query("status"))
 	channel := c.Query("channel")
 	from := c.Query("from")
@@ -93,8 +98,8 @@ func (h *NotificationHandler) NotificationList(c fiber.Ctx) error {
 
 	response := dto.Response{
 		Message:    "",
-		Pagination: pagination,
-		Filter:     filters,
+		Pagination: &pagination,
+		Filter:     &filters,
 		Data:       notifications,
 	}
 
@@ -112,4 +117,19 @@ func (h *NotificationHandler) StatusList(c fiber.Ctx) error {
 		Data:    status,
 	}
 	return c.Status(fiber.StatusOK).JSON(response)
+}
+
+func (h *NotificationHandler) GetMetrics(c fiber.Ctx) error {
+	metrics, err := h.s.GetMetrics()
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.Status(fiber.StatusOK).JSON(metrics)
+}
+
+func (h *NotificationHandler) HealthCheck(c fiber.Ctx) error {
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":    "ok",
+		"timestamp": time.Now(),
+	})
 }

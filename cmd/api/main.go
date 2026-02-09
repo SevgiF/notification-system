@@ -20,7 +20,10 @@ func main() {
 	}
 
 	app := fiber.New()
-	notification.SetupNotification(app, db)
+	workerPool := notification.SetupNotification(app, db)
+
+	// Start Worker Pool
+	workerPool.Start()
 
 	// Setup graceful shutdown
 	// Create channel for shutdown signals
@@ -45,7 +48,10 @@ func main() {
 		log.Printf("Server shutdown error: %v", err)
 	}
 
-	// 2. Close database connection
+	// 2. Stop Worker Pool
+	workerPool.Stop()
+
+	// 3. Close database connection
 	if err := db.Close(); err != nil {
 		log.Printf("Database shutdown error: %v", err)
 	}

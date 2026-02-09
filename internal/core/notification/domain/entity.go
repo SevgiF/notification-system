@@ -1,15 +1,16 @@
 package domain
 
 type Notification struct {
-	ID        int
-	Recipient string
-	Channel   string
-	Content   string
-	Priority  string
-	Status    int
-	CreatedAt string
-	UpdatedAt string
-	DeletedAt string
+	ID         int
+	Recipient  string
+	Channel    string
+	Content    string
+	Priority   string
+	Status     int
+	StatusName string
+	CreatedAt  string
+	UpdatedAt  string
+	DeletedAt  *string
 }
 
 type Status struct {
@@ -23,9 +24,12 @@ const (
 	LOW    = "low"
 
 	//statuses
-	DELETED  = 0
-	CREATED  = 1
-	CANCELED = 2
+	DELETED    = 0
+	CREATED    = 1
+	CANCELED   = 2
+	SENT       = 3
+	FAILED     = 4
+	PROCESSING = 5
 
 	//rules
 	MAX_LIMIT     = 100

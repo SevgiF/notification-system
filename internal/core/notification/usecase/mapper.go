@@ -7,12 +7,13 @@ import (
 
 func ToNotificationResponse(n domain.Notification) dto.NotificationResponse {
 	return dto.NotificationResponse{
-		ID:        n.ID,
-		Recipient: n.Recipient,
-		Channel:   n.Channel,
-		Content:   n.Content,
-		Priority:  n.Priority,
-		Status:    n.Status,
+		ID:         n.ID,
+		Recipient:  n.Recipient,
+		Channel:    n.Channel,
+		Content:    n.Content,
+		Priority:   n.Priority,
+		Status:     n.Status,
+		StatusName: n.StatusName,
 	}
 }
 
