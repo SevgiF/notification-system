@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      - MYSQL_USER=user
+      - MYSQL_PASS=password
+      - MYSQL_ADDR=mysql:3306
+      - MYSQL_DB=notification_db
+      - WEBHOOK_URL=https://webhook.site/d1715ee7-3472-44f3-9a30-ee87188f3fd6
+    depends_on:
+      mysql:
+        condition: service_healthy
+    container_name: notification-app
+    restart: on-failure
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=notification_db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./migrations:/docker-entrypoint-initdb.d
+
+volumes:
+  mysql_data:
